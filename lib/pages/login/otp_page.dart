@@ -294,6 +294,7 @@ class _OtpState extends State<Otp> {
                                         _error = '';
                                       });
                                       //firebase code send false
+                                      //edit to login
                                       if (phoneAuthCheck == false) {
                                         var verify = await verifyUser(phnumber);
 
@@ -302,7 +303,7 @@ class _OtpState extends State<Otp> {
                                         // firebase code send true
                                         try {
                                           PhoneAuthCredential credential =
-                                              PhoneAuthProvider.credential( 
+                                              PhoneAuthProvider.credential(
                                                   verificationId: verId,
                                                   smsCode: otpNumber);
 

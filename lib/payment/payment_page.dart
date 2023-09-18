@@ -192,53 +192,63 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ),
                   ),
                 ),
-                if(widget.isPay)
-                InkWell(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        final txt = choosenLanguage == "en"
-                            ? "Problem with credit card entry, choose another payment method."
-                            : "مشكلة في إدخال بيانات الكارد، اختار طريقة دفع أخري.";
-                        return AlertDialog(
-                          insetPadding: const EdgeInsets.all(10),
-                          icon: const Icon(Icons.info),
-                          content: Text(
-                            txt,
-                            style: GoogleFonts.rubik(
-                              fontSize: media.width * sixteen,
-                              fontWeight: FontWeight.w600,
-                              color: textColor,
+                if (widget.isPay)
+                  InkWell(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          final txt = choosenLanguage == "en"
+                              ? "Problem with credit card entry, choose another payment method."
+                              : "مشكلة في إدخال بيانات الكارت البنكى، اختار طريقة دفع أخري.";
+                          return Center(
+                            child: AlertDialog(
+                              insetPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 20),
+                              actionsAlignment: MainAxisAlignment.center,
+                              icon: const Icon(Icons.info),
+                              content: Text(
+                                txt,
+                                style: GoogleFonts.rubik(
+                                  fontSize: media.width * sixteen,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                                textDirection: choosenLanguage == "en"
+                                    ? TextDirection.ltr
+                                    : TextDirection.rtl,
+                              ),
+                              actions: [
+                                Button(
+                                  text: choosenLanguage == "en"
+                                      ? "Cancel"
+                                      : "الغاء",
+                                  width: media.width * 0.4,
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                Button(
+                                  text:
+                                      choosenLanguage == "en" ? "Ok" : "موافق",
+                                  width: media.width * 0.4,
+                                  color: Colors.green,
+                                  borcolor: Colors.green,
+                                  onTap: () {
+                                    setState(() {
+                                      chooseAnother = true;
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
                             ),
-                          ),
-                          actions: [
-                            Button(
-                              text:
-                                  choosenLanguage == "en" ? "Cancel" : "الغاء",
-                              width: media.width * 0.4,
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                            Button(
-                              text: choosenLanguage == "en" ? "Ok" : "موافق",
-                              width: media.width * 0.4,
-                              color: Colors.blue,
-                              onTap: () {
-                                setState(() {
-                                  chooseAnother = true;
-                                });
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: const Icon(Icons.info),
-                ),
+                          );
+                        },
+                      );
+                    },
+                    child: const Icon(Icons.info),
+                  ),
               ],
             ),
           ),

@@ -101,7 +101,7 @@ class _LoadingPageState extends State<LoadingPage> {
           final media = MediaQuery.of(context).size;
           final txt = choosenLanguage == "en"
               ? "Congratulations for joining Mwaslat!\nService will be available soon."
-              : "مرحبا بك في مواصلات!\nالخدمة سوف تكون متوافرة قريبا.";
+              : " مرحبا بك في مواصلات  !\nالخدمة سوف تكون متوافرة قريبا.";
           return AlertDialog(
             insetPadding: const EdgeInsets.all(10),
             icon: const Icon(Icons.info),
@@ -112,6 +112,9 @@ class _LoadingPageState extends State<LoadingPage> {
                 fontWeight: FontWeight.w600,
                 color: textColor,
               ),
+              textDirection: choosenLanguage == "en"
+                  ? TextDirection.ltr
+                  : TextDirection.rtl,
             ),
             actions: [
               Button(
