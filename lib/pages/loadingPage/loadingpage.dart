@@ -39,7 +39,17 @@ class _LoadingPageState extends State<LoadingPage> {
   @override
   void initState() {
     getLanguageDone();
+    mPlayer!.openPlayer().then((value) {
+      setState(() {
+        mPlayerIsInited = true;
+      });
+    });
 
+    openTheRecorder().then((value) {
+      setState(() {
+        mRecorderIsInited = true;
+      });
+    });
     super.initState();
   }
 

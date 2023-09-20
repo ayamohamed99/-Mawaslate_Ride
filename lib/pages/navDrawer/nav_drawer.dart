@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tagyourtaxi_driver/pages/NavigatorPages/referral.dart';
 import 'package:tagyourtaxi_driver/pages/navDrawer/setting.dart';
 import 'package:tagyourtaxi_driver/payment/payment_page.dart';
 import '../../functions/functions.dart';
@@ -8,12 +9,10 @@ import 'package:tagyourtaxi_driver/pages/NavigatorPages/editprofile.dart';
 import 'package:tagyourtaxi_driver/pages/NavigatorPages/faq.dart';
 import 'package:tagyourtaxi_driver/pages/NavigatorPages/history.dart';
 import 'package:tagyourtaxi_driver/pages/NavigatorPages/makecomplaint.dart';
-import 'package:tagyourtaxi_driver/pages/NavigatorPages/referral.dart';
 import 'package:tagyourtaxi_driver/pages/NavigatorPages/walletpage.dart';
 import 'package:tagyourtaxi_driver/pages/onTripPage/map_page.dart';
 import 'package:tagyourtaxi_driver/styles/styles.dart';
 import 'package:tagyourtaxi_driver/translations/translation.dart';
-
 import '../NavigatorPages/notification.dart';
 
 class NavDrawer extends StatefulWidget {
@@ -316,6 +315,7 @@ class _NavDrawerState extends State<NavDrawer> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
+                                        // const SimpleRecorder()
                                         const ReferralPage()));
                           },
                           child: Container(

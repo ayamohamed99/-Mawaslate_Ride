@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:audio_session/audio_session.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,9 @@ import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart' as perm;
 import 'package:geolocator/geolocator.dart' as geolocs;
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 // ignore: must_be_immutable
 class BookingConfirmation extends StatefulWidget {
@@ -54,6 +58,7 @@ bool lowWalletBalance = false;
 bool tripReqError = false;
 List rentalOption = [];
 int rentalChoosenOption = 0;
+
 Animation<double>? _animation;
 
 class _BookingConfirmationState extends State<BookingConfirmation>
@@ -67,7 +72,7 @@ class _BookingConfirmationState extends State<BookingConfirmation>
   Map myBearings = {};
   String _cancelReason = '';
   dynamic _controller;
-  late PermissionStatus permission;
+  late PermissionStatus permissionH;
   Location location = Location();
   bool _locationDenied = false;
   bool _isLoading = false;
@@ -85,6 +90,7 @@ class _BookingConfirmationState extends State<BookingConfirmation>
   bool _rideLaterSuccess = false;
   bool _confirmRideLater = false;
   bool showSos = false;
+
   bool notifyCompleted = false;
   bool _showInfo = false;
   dynamic _showInfoInt;
@@ -94,6 +100,68 @@ class _BookingConfirmationState extends State<BookingConfirmation>
   final _mapMarkerSC = StreamController<List<Marker>>();
   StreamSink<List<Marker>> get _mapMarkerSink => _mapMarkerSC.sink;
   Stream<List<Marker>> get mapMarkerStream => _mapMarkerSC.stream;
+
+  //initState for recording
+
+  void record() {
+    mRecorder!
+        .startRecorder(
+      toFile: mPath,
+      codec: codec,
+      audioSource: theSource,
+    )
+        .then((value) {
+      setState(() {});
+    });
+  }
+
+  void stopRecorder() async {
+    await mRecorder!.stopRecorder().then((value) {
+      setState(() {
+        //var url = value;
+        mplaybackReady = true;
+      });
+    });
+  }
+
+  void play() {
+    assert(mPlayerIsInited &&
+        mplaybackReady &&
+        mRecorder!.isStopped &&
+        mPlayer!.isStopped);
+    mPlayer!
+        .startPlayer(
+            fromURI: mPath,
+            //codec: kIsWeb ? Codec.opusWebM : Codec.aacADTS,
+            whenFinished: () {
+              setState(() {});
+            })
+        .then((value) {
+      setState(() {});
+    });
+  }
+
+  void stopPlayer() {
+    mPlayer!.stopPlayer().then((value) {
+      setState(() {});
+    });
+  }
+
+// ----------------------------- UI --------------------------------------------
+
+  fn? getRecorderFn() {
+    if (!mRecorderIsInited || !mPlayer!.isStopped) {
+      return null;
+    }
+    return mRecorder!.isStopped ? record : stopRecorder;
+  }
+
+  fn? getPlaybackFn() {
+    if (!mPlayerIsInited || !mplaybackReady || !mRecorder!.isStopped) {
+      return null;
+    }
+    return mPlayer!.isStopped ? play : stopPlayer;
+  }
 
   // final _distSC = StreamController();
   // // StreamSink get _distSCSink => _distSC.sink;
@@ -144,7 +212,10 @@ class _BookingConfirmationState extends State<BookingConfirmation>
     _controller = null;
 
     animationController?.dispose();
-
+    mPlayer!.closePlayer();
+    mPlayer = null;
+    mRecorder!.closeRecorder();
+    mRecorder = null;
     super.dispose();
   }
 
@@ -442,15 +513,15 @@ class _BookingConfirmationState extends State<BookingConfirmation>
       }
     }
 
-    permission = await location.hasPermission();
+    permissionH = await location.hasPermission();
 
-    if (permission == PermissionStatus.denied ||
-        permission == PermissionStatus.deniedForever) {
+    if (permissionH == PermissionStatus.denied ||
+        permissionH == PermissionStatus.deniedForever) {
       setState(() {
         locationAllowed = false;
       });
-    } else if (permission == PermissionStatus.granted ||
-        permission == PermissionStatus.grantedLimited) {
+    } else if (permissionH == PermissionStatus.granted ||
+        permissionH == PermissionStatus.grantedLimited) {
       // var loc = await location.getLocation();
       locationAllowed = true;
       if (locationAllowed == true) {
@@ -1029,6 +1100,36 @@ class _BookingConfirmationState extends State<BookingConfirmation>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         children: [
+                                          InkWell(
+                                            onTap: getRecorderFn(),
+                                            child: Container(
+                                              height: media.width * 0.1,
+                                              width: media.width * 0.1,
+                                              decoration: BoxDecoration(
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                        blurRadius: 2,
+                                                        color: Colors.red
+                                                            .withOpacity(0.2),
+                                                        spreadRadius: 2)
+                                                  ],
+                                                  color: mRecorder!.isRecording
+                                                      ? buttonColor
+                                                      : page,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          media.width * 0.02)),
+                                              child: Icon(
+                                                Icons.mic,
+                                                color: mRecorder!.isStopped
+                                                    ? buttonColor
+                                                    : Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: media.width * 0.05,
+                                          ),
                                           (userRequestData.isNotEmpty &&
                                                   userRequestData[
                                                           'is_trip_start'] ==
@@ -5336,6 +5437,71 @@ class _BookingConfirmationState extends State<BookingConfirmation>
                                                                     ),
                                                                   ),
                                                                 ),
+                                                                InkWell(
+                                                                  onTap:
+                                                                      getRecorderFn(),
+                                                                  child:
+                                                                      Container(
+                                                                    padding: EdgeInsets.all(
+                                                                        media.width *
+                                                                            0.05),
+                                                                    child: Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .spaceBetween,
+                                                                      children: [
+                                                                        Column(
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Text(
+                                                                              !mRecorder!.isRecording ? languages[choosenLanguage]['text_recording'] : languages[choosenLanguage]['text_end_recording'],
+                                                                              style: GoogleFonts.roboto(fontSize: media.width * sixteen, color: mRecorder!.isRecording ? buttonColor : textColor, fontWeight: FontWeight.w600),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        Icon(
+                                                                            mRecorder!.isRecording
+                                                                                ? Icons.mic_none
+                                                                                : Icons.mic_off_rounded,
+                                                                            color: mRecorder!.isRecording ? buttonColor : textColor)
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                //Play Recording
+                                                                // InkWell(
+                                                                //   onTap:
+                                                                //       getPlaybackFn(),
+                                                                //   child:
+                                                                //       Container(
+                                                                //     padding: EdgeInsets.all(
+                                                                //         media.width *
+                                                                //             0.05),
+                                                                //     child: Row(
+                                                                //       mainAxisAlignment:
+                                                                //           MainAxisAlignment
+                                                                //               .spaceBetween,
+                                                                //       children: [
+                                                                //         Column(
+                                                                //           crossAxisAlignment:
+                                                                //               CrossAxisAlignment.start,
+                                                                //           children: [
+                                                                //             Text(
+                                                                //               languages[choosenLanguage]['text_recording'],
+                                                                //               style: GoogleFonts.roboto(fontSize: media.width * sixteen, color: mPlayer!.isPlaying ? buttonColor : textColor, fontWeight: FontWeight.w600),
+                                                                //             ),
+                                                                //           ],
+                                                                //         ),
+                                                                //         Icon(
+                                                                //             mPlayer!.isPlaying
+                                                                //                 ? Icons.play_arrow
+                                                                //                 : Icons.pause,
+                                                                //             color: mPlayer!.isPlaying ? buttonColor : textColor)
+                                                                //       ],
+                                                                //     ),
+                                                                //   ),
+                                                                // ),
                                                                 (sosData.isNotEmpty)
                                                                     ? Column(
                                                                         children: sosData
