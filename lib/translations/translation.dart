@@ -138,7 +138,7 @@ Map<String, dynamic> languages = {
     "text_cancelsuccess": "Ride Cancelled Successfully",
     "text_notifyadmin": "Notify Admin",
     "text_recording": "Recording ",
-    "text_end_recording": "End Recording ",
+    "text_end_recording": "End Recording ", 
     "text_notifysuccess": "Notified Successfully",
     "text_chatwithdriver": "Chat With Captain",
     "text_entermessage": "Enter Message",

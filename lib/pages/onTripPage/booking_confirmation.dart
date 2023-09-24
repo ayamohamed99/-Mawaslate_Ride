@@ -1100,33 +1100,39 @@ class _BookingConfirmationState extends State<BookingConfirmation>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         children: [
-                                          InkWell(
-                                            onTap: getRecorderFn(),
-                                            child: Container(
-                                              height: media.width * 0.1,
-                                              width: media.width * 0.1,
-                                              decoration: BoxDecoration(
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                        blurRadius: 2,
-                                                        color: Colors.red
-                                                            .withOpacity(0.2),
-                                                        spreadRadius: 2)
-                                                  ],
-                                                  color: mRecorder!.isRecording
+                                          if (userRequestData.isNotEmpty &&
+                                              userRequestData[
+                                                      'is_trip_start'] ==
+                                                  1)
+                                            InkWell(
+                                              // onTap: getRecorderFn(),
+                                              child: Container(
+                                                height: media.width * 0.1,
+                                                width: media.width * 0.1,
+                                                decoration: BoxDecoration(
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                          blurRadius: 2,
+                                                          color: Colors.red
+                                                              .withOpacity(0.2),
+                                                          spreadRadius: 2)
+                                                    ],
+                                                    color:
+                                                        mRecorder!.isRecording
+                                                            ? buttonColor
+                                                            : page,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            media.width *
+                                                                0.02)),
+                                                child: Icon(
+                                                  Icons.mic,
+                                                  color: mRecorder!.isStopped
                                                       ? buttonColor
-                                                      : page,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          media.width * 0.02)),
-                                              child: Icon(
-                                                Icons.mic,
-                                                color: mRecorder!.isStopped
-                                                    ? buttonColor
-                                                    : Colors.white,
+                                                      : Colors.white,
+                                                ),
                                               ),
                                             ),
-                                          ),
                                           SizedBox(
                                             height: media.width * 0.05,
                                           ),
@@ -5469,7 +5475,7 @@ class _BookingConfirmationState extends State<BookingConfirmation>
                                                                     ),
                                                                   ),
                                                                 ),
-                                                                //Play Recording
+                                                                // Play Recording
                                                                 // InkWell(
                                                                 //   onTap:
                                                                 //       getPlaybackFn(),
